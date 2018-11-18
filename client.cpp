@@ -114,7 +114,7 @@ void getPortHostName(char *serverMessage) {
         nextToken++;
     }
 
-    sleep(2);
+    sleep(1);
 
     tcpClient(atoi(portHost[2].c_str()), portHost[1].c_str());
 
@@ -125,7 +125,7 @@ void getPortHostName(char *serverMessage) {
 void newUDPClient(int portNumber) {
     int sockfd;
     struct sockaddr_in serverAddr;
-    char buffer[1024];
+    char buffer[BUFSIZE];
 
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
     memset(&serverAddr, '\0', sizeof(serverAddr));
@@ -137,9 +137,9 @@ void newUDPClient(int portNumber) {
 
     bzero(buffer, sizeof(buffer));
     strcpy(buffer, "Hello Store\n");
-    sendto(sockfd, buffer, 1024, 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
+    sendto(sockfd, buffer, BUFSIZE, 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
     //printf("[+]Data Send: %s", buffer);
-    ssize_t n = recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr *) &serverAddr, &serverlen);
+    ssize_t n = recvfrom(sockfd, buffer, BUFSIZE, 0, (struct sockaddr *) &serverAddr, &serverlen);
 
     //cout<<"Client received datagram from "<<inet_ntoa(serverAddr.sin_addr) << endl;
     printf("Message %s \n",

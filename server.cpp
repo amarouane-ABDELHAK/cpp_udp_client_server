@@ -18,7 +18,7 @@
 
 #define BUFSIZE 1024
 //Predefine a port number
-#define PORT 8888
+#define TCP_PORT 8888
 
 //Predefine the maximum clients allowed to connect at the same time
 #define MAX_CLIENTS 10
@@ -134,27 +134,7 @@ void udpProtocol(int portNumber) {
         if (n < 0)
             error("ERROR in recvfrom");
 
-        //printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
-        cout<<"clientaddr / "<<inet_ntoa(clientaddr.sin_addr) << endl;
-        cout<<"Serverad / "<<inet_ntoa(serveraddr.sin_addr) << endl;
-        /*
-         * gethostbyaddr: determine who sent the datagram
-         */
-//        hostp = gethostbyaddr((const char *) &clientaddr.sin_addr.s_addr,
-////                sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-//        if (hostp == NULL)
-//            error("ERROR on gethostbyaddr");
-//        hostaddrp = inet_ntoa(clientaddr.sin_addr);
-//        if (hostaddrp == NULL)
-//            error("ERROR on inet_ntoa\n");
-////        printf("server received datagram from %s (%s)\n",
-////                hostp->h_name, hostaddrp);
-////        printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
-//
-//        /*
-//         * sendto: echo the input back to the client
-//         */
-        tcpHolderMessage = "CS571:0.0.0.0:8888";
+        tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":8888";
 
         n = sendto(sockfd, tcpHolderMessage.c_str(), BUFSIZE, 0,
                 (struct sockaddr *) &clientaddr, clientlen);
@@ -202,14 +182,14 @@ void tcpProtocol(int portNumber) {
     //Define the type of the socket
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(TCP_PORT);
 
     //Bind the socket to localhost port 8888
     if (bind(server_socket, (struct sockaddr *) &address, sizeof(address)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    printf("Socket is open on port %d \n", PORT);
+    printf("Socket is open on port %d \n", TCP_PORT);
 
     //try to specify maximum of 3 pending connections for the server socket
     if (listen(server_socket, 3) < 0) {
@@ -259,7 +239,12 @@ void tcpProtocol(int portNumber) {
             }
             //Inform the client that the connection is successful
             oss.str("");
-            oss << "Welcome Client [" << new_socket << "] you are successfully connected\n\0";
+            oss << "Welcome Client [" << new_socket << "] to *Alumni Hall* store\n"
+                                                       "Located in:\tBridge Street Town Centre\n"
+                                                       "Address:\t300 The Bridge St #130, Huntsville, AL 35806\n"
+                                                       "Website:\thttps://www.alumnihall.com/\n"
+                                                       "Hours:\tOpens 10AM - 18PM (Sun - Mon)\n"
+                                                       "Phone:\t(256) 327-8745\n\0";
             char message[BUFFER_SIZE];
             //Clear the message
             bzero(message, sizeof(message));
@@ -358,21 +343,20 @@ void tcpProtocol(int portNumber) {
 int main(int argc, char **argv) {
     int portNumber;
 
-    cout<<"running..."<<endl;
     if (argc != 2) {
         fprintf(stderr, "usage: %s <port>\n", argv[0]);
         exit(1);
     }
     portNumber = atoi(argv[1]);
     pid_t pid = fork();
-    cout<<"PID = "<<pid<<endl;
+    
     if (pid== 0) {
-        cout<<"running UDP"<<endl;
+        cout<<"running UDP on port: "<<portNumber<<endl;
         udpProtocol(portNumber);
 
     }
     else {
-        cout<<"running TCP"<<endl;
-        tcpProtocol(8882);
+        cout<<"running TCP on port "<<TCP_PORT<<endl;
+        tcpProtocol(TCP_PORT);
     }
 }
