@@ -53,7 +53,7 @@ string getServerIp() {
                 tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
                 char addressBuffer[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-                if(strcmp(ifa->ifa_name,"en0") == 0){
+                if(strstr(ifa->ifa_name, "en")){
                     //printf("%s IP Address 1 %s\n", ifa->ifa_name, addressBuffer);
                     return addressBuffer;
                 }
@@ -169,8 +169,8 @@ void udpProtocol(int portNumber) {
         if (n < 0)
             error("ERROR in recvfrom");
 
-        tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":"+to_string(TCP_PORT);
-        //tcpHolderMessage = "CS571:"+getServerIp()+":"+to_string(TCP_PORT);
+        //tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":"+to_string(TCP_PORT);
+        tcpHolderMessage = "CS571:"+getServerIp()+":"+to_string(TCP_PORT);
 
         n = sendto(sockfd, tcpHolderMessage.c_str(), BUFSIZE, 0,
                 (struct sockaddr *) &clientaddr, clientlen);
