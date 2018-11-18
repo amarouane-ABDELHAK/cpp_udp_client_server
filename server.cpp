@@ -134,7 +134,7 @@ void udpProtocol(int portNumber) {
         if (n < 0)
             error("ERROR in recvfrom");
 
-        printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
+        //printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
         cout<<"clientaddr / "<<inet_ntoa(clientaddr.sin_addr) << endl;
         cout<<"Serverad / "<<inet_ntoa(serveraddr.sin_addr) << endl;
         /*
@@ -154,7 +154,7 @@ void udpProtocol(int portNumber) {
 //        /*
 //         * sendto: echo the input back to the client
 //         */
-        tcpHolderMessage = "CS571:192.168.0.10:8888";
+        tcpHolderMessage = "CS571:0.0.0.0:8888";
 
         n = sendto(sockfd, tcpHolderMessage.c_str(), BUFSIZE, 0,
                 (struct sockaddr *) &clientaddr, clientlen);
