@@ -122,7 +122,7 @@ void getPortHostName(char *serverMessage) {
 }
 
 
-void newUDPClient(int portNumber) {
+void newUDPClient(int portNumber, char* serverIP) {
     int sockfd;
     struct sockaddr_in serverAddr;
     char buffer[BUFSIZE];
@@ -133,7 +133,8 @@ void newUDPClient(int portNumber) {
 
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(portNumber);
-    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverAddr.sin_addr.s_addr = inet_addr(serverIP);
+            //inet_addr("0.0.0.0");//inet_addr("192.168.0.2");//htonl(INADDR_ANY);
 
     bzero(buffer, sizeof(buffer));
     strcpy(buffer, "Hello Store\n");
@@ -153,14 +154,15 @@ void newUDPClient(int portNumber) {
 int main(int argc, char **argv) {
     /* check command line arguments */
     int portNumber = 0;
-    if (argc != 2) {
-        fprintf(stderr, "usage: %s <port>\n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "usage: %s <serverIP> <port>\n", argv[0]);
         exit(0);
     }
+    char * hostname = argv[1];
 
-    portNumber = atoi(argv[1]);
+    portNumber = atoi(argv[2]);
     //udpClient(portNumber, hostname);
-    newUDPClient(portNumber);
+    newUDPClient(portNumber, hostname);
 
     return 0;
 }
