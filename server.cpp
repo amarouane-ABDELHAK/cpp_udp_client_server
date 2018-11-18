@@ -15,6 +15,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <ifaddrs.h>
+#include <netinet/in.h>
 
 #define BUFSIZE 1024
 //Predefine a port number
@@ -34,6 +36,39 @@ void error(string msg) {
     perror(msg.c_str());
     exit(1);
 }
+
+string getServerIp() {
+        struct ifaddrs * ifAddrStruct=NULL;
+        struct ifaddrs * ifa=NULL;
+        void * tmpAddrPtr=NULL;
+
+        getifaddrs(&ifAddrStruct);
+
+        for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
+            if (!ifa->ifa_addr) {
+                continue;
+            }
+            if (ifa->ifa_addr->sa_family == AF_INET) { // check it is IP4
+                // is a valid IP4 Address
+                tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+                char addressBuffer[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+                if(strcmp(ifa->ifa_name,"en0") == 0){
+                    //printf("%s IP Address 1 %s\n", ifa->ifa_name, addressBuffer);
+                    return addressBuffer;
+                }
+
+            } else if (ifa->ifa_addr->sa_family == AF_INET6) { // check it is IP6
+                // is a valid IP6 Address
+                tmpAddrPtr=&((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
+                char addressBuffer[INET6_ADDRSTRLEN];
+                inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer, INET6_ADDRSTRLEN);
+                //printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer);
+            }
+        }
+        if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
+        return "0.0.0.0";
+    }
 
 void showConnecetdClients(int *client_socket) {
     /*
@@ -134,7 +169,8 @@ void udpProtocol(int portNumber) {
         if (n < 0)
             error("ERROR in recvfrom");
 
-        tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":8888";
+        tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":"+to_string(TCP_PORT);
+        //tcpHolderMessage = "CS571:"+getServerIp()+":"+to_string(TCP_PORT);
 
         n = sendto(sockfd, tcpHolderMessage.c_str(), BUFSIZE, 0,
                 (struct sockaddr *) &clientaddr, clientlen);
@@ -181,7 +217,7 @@ void tcpProtocol(int portNumber) {
 
     //Define the type of the socket
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = INADDR_ANY;//INADDR_ANY;
     address.sin_port = htons(TCP_PORT);
 
     //Bind the socket to localhost port 8888
@@ -342,6 +378,7 @@ void tcpProtocol(int portNumber) {
 
 int main(int argc, char **argv) {
     int portNumber;
+    cout<<"IP = "<<getServerIp()<<endl;
 
     if (argc != 2) {
         fprintf(stderr, "usage: %s <port>\n", argv[0]);
