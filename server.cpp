@@ -116,33 +116,18 @@ void udpProtocol(int portNumber) {
     int optval; /* flag value for setsockopt */
     ssize_t n; /* message byte size */
 
-    /*
-     * check command line arguments
-     */
-
-
-    /*
-     * socket: create the parent socket
-     */
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-//    int broadCastEnabl = 1;
-//    setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadCastEnabl, sizeof(broadCastEnabl));
     if (sockfd < 0)
         error("ERROR opening socket");
-
-    /* setsockopt: Handy debugging trick that lets
-     * us rerun the server immediately after we kill it;
-     * otherwise we have to wait about 20 secs.
-     * Eliminates "ERROR on binding: Address already in use" error.
-     */
     optval = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST,
-            (const void *) &optval, sizeof(int));
+    if (setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST,
+            (const void *) &optval, sizeof(int)) < 0) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+    ;
 
-    /*
-     * build the server's Internet address
-     */
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
@@ -155,18 +140,8 @@ void udpProtocol(int portNumber) {
     clientlen = sizeof(clientaddr);
     while (1) {
 
-        /*
-         * recvfrom: receive a UDP datagram from a client
-         */
-//        bzero(buf, BUFSIZE);
-//        n = recvfrom(sockfd, buf, BUFSIZE, 0,
-//                (struct sockaddr *) &clientaddr, &clientlen);
-//        if (n < 0)
-//            error("ERROR in recvfrom");
-
-        //tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":"+to_string(TCP_PORT);
         tcpHolderMessage ="";
-        tcpHolderMessage = "CS571:"+getServerIp()+":"+to_string(TCP_PORT);
+        tcpHolderMessage = "CS570:"+getServerIp()+":"+to_string(TCP_PORT);
 
         n = sendto(sockfd, tcpHolderMessage.c_str(), tcpHolderMessage.length(), 0,
                 (struct sockaddr *) &clientaddr, clientlen);

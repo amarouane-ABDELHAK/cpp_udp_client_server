@@ -30,6 +30,7 @@ void error(string msg) {
 
 void tcpClient(int portNumber, const char *hostname) {
     //Define the socket address
+    //cout<<"Port "<<portNumber<<" Host "<<hostname<<endl;
     int clientSocket, ret;
     struct sockaddr_in serverAddr;
     char buffer[1024];
@@ -135,10 +136,6 @@ void newUDPClient(int portno) {
     int n; /* message byte size */
 
     /*
-     * check command line arguments
-     */
-
-    /*
      * socket: create the parent socket
      */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -148,7 +145,6 @@ void newUDPClient(int portno) {
     /* setsockopt: Handy debugging trick that lets
      * us rerun the server immediately after we kill it;
      * otherwise we have to wait about 20 secs.
-     * Eliminates "ERROR on binding: Address already in use" error.
      */
     optval = 1;
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
