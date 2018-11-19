@@ -145,24 +145,13 @@ void udpProtocol(int portNumber) {
      */
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serveraddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
     serveraddr.sin_port = htons((unsigned short) portNumber);
 
     clientaddr.sin_family = AF_INET;
     clientaddr.sin_port = htons(portNumber);
-    clientaddr.sin_addr.s_addr = inet_addr("10.4.149.230");
+    clientaddr.sin_addr.s_addr = inet_addr("255.255.255.255");
 
-
-
-    /*
-     * bind: associate the parent socket with a port
-     */
-//    if (bind(sockfd, (struct sockaddr *) &clientaddr, sizeof(clientaddr)) < 0)
-//        error("ERROR on binding");
-
-    /*
-     * main loop: wait for a datagram, then echo it
-     */
     clientlen = sizeof(clientaddr);
     while (1) {
 
