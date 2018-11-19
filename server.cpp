@@ -53,7 +53,7 @@ string getServerIp() {
                 tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
                 char addressBuffer[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-                if(strstr(ifa->ifa_name, "en")){
+                if(strstr(ifa->ifa_name, "en") || strstr(ifa->ifa_name,"wlp4s0")){
                     //printf("%s IP Address 1 %s\n", ifa->ifa_name, addressBuffer);
                     return addressBuffer;
                 }
