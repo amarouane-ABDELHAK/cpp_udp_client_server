@@ -1,7 +1,13 @@
+
 /*
- * udpserver.c - A simple UDP echo server
- * usage: udpserver <port>
- */
+* File name    :  server.cpp
+* Usage        :  A server that echo a UDP message advertising the necessary
+*                 information for a client to connect through TCP protocol
+* How to       :  Run g+++ server.cpp -o server then ./server
+* Developed by :  Abdelhak Marouane &
+* For          :  CS570 project 2
+* Instructor   :  Dr Feng Zhu
+*/
 
 #include <stdio.h>
 #include <unistd.h>
@@ -18,9 +24,12 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>
 
+//Predefine the buffer size to allow a random message size of the TCP connection
 #define BUFSIZE 1024
-//Predefine a port number
+//Predefine a TCP port number
 #define TCP_PORT 8888
+//Predefine a UDP port number
+#define UDP_PORT 8881
 
 //Predefine the maximum clients allowed to connect at the same time
 #define MAX_CLIENTS 10
@@ -29,15 +38,23 @@
 #define BUFFER_SIZE 1025
 using namespace std;
 
-/*
- * error - wrapper for perror
- */
+
 void error(string msg) {
+    /*
+     * Rule            : Wrapper for perror. It exit the program every time it was executed
+     * Input (string)  : Error message
+     * Return (void)
+     */
     perror(msg.c_str());
     exit(1);
 }
 
 string getServerIp() {
+    /*
+     * Rule  : Extract the server IP
+     * Input : None
+     * Return (string) : The IP address of the server or "0.0.0.0"
+     */
         struct ifaddrs * ifAddrStruct=NULL;
         struct ifaddrs * ifa=NULL;
         void * tmpAddrPtr=NULL;
@@ -53,6 +70,7 @@ string getServerIp() {
                 tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
                 char addressBuffer[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+                //Check if Ethernet or air drop peer to peer connection
                 if(strstr(ifa->ifa_name, "en") || strstr(ifa->ifa_name,"wlp4s0")){
                     //printf("%s IP Address 1 %s\n", ifa->ifa_name, addressBuffer);
                     return addressBuffer;
@@ -105,6 +123,11 @@ int getClientID(char *buffer) {
 
 
 void udpProtocol(int portNumber) {
+    /*
+     * Rule  : Broadcast a UDP message of form XXXX:SERVER_IP:TCP_PORT
+     * Input : UDP port number
+     * Return (void)
+     */
     int sockfd; /* socket */
     socklen_t clientlen; /* byte size of client's address */
     struct sockaddr_in serveraddr; /* server's addr */
@@ -151,6 +174,11 @@ void udpProtocol(int portNumber) {
 }
 
 void tcpProtocol(int portNumber) {
+    /*
+     * Rule  : Preparing a TCP connection and waiting for a client to connect
+     * Input : TCP port number
+     * Return (void)
+     */
     int opt = 1;
     int server_socket, addrlen, new_socket, client_socket[MAX_CLIENTS], activity, i, valread, sd;
     int max_sd;
@@ -349,18 +377,15 @@ void tcpProtocol(int portNumber) {
 
 int main(int argc, char **argv) {
     int portNumber;
-    cout<<"IP = "<<getServerIp()<<endl;
+    //Show the server IP (If 0.0.0.0 check if the type of the connection is not supported)
+    cout<<"Server IP:\t"<<getServerIp()<<endl;
 
-    if (argc != 2) {
-        fprintf(stderr, "usage: %s <port>\n", argv[0]);
-        exit(1);
-    }
-    portNumber = atoi(argv[1]);
+    //Fork the process to run simultaneously UDP/TCP servers
     pid_t pid = fork();
     
     if (pid== 0) {
-        cout<<"running UDP on port: "<<portNumber<<endl;
-        udpProtocol(portNumber);
+        cout<<"running UDP on port: "<<UDP_PORT<<endl;
+        udpProtocol(UDP_PORT);
 
     }
     else {

@@ -15,22 +15,27 @@
 #include <arpa/inet.h>
 
 #define BUFSIZE 1024
-
+#define UDP_PORT 8881
 using namespace std;
 
-/*
- * error - wrapper for perror
- */
-
-
 void error(string msg) {
+    /*
+     * Rule            : Wrapper for perror. It exit the program every time it was executed
+     * Input (string)  : Error message
+     * Return (void)
+     */
     perror(msg.c_str());
-    exit(0);
+    exit(1);
 }
+
 
 void tcpClient(int portNumber, const char *hostname) {
     //Define the socket address
-    //cout<<"Port "<<portNumber<<" Host "<<hostname<<endl;
+    /*
+     * Rule  : Establish a TCP connection with a TCP server
+     * Input : TCP port number and the IP address of the TCP server
+     * Return (void)
+     */
     int clientSocket, ret;
     struct sockaddr_in serverAddr;
     char buffer[1024];
@@ -103,6 +108,8 @@ void getPortHostName(char *serverMessage) {
     string message(serverMessage, BUFSIZE);
     int nextToken = 0;
     //Add a colon to the end of the message to stop the wile loop
+
+
     message.append(":");
 
     for (int i = 0; i < message.length() - 1; i++) {
@@ -116,14 +123,24 @@ void getPortHostName(char *serverMessage) {
     }
 
     sleep(1);
+    if(strstr(serverMessage, "CS570:")){
+        tcpClient(atoi(portHost[2].c_str()), portHost[1].c_str());
 
-    tcpClient(atoi(portHost[2].c_str()), portHost[1].c_str());
+    }
+
+
 
 
 }
 
 
-void newUDPClient(int portno) {
+void UDPClient(int portno) {
+    /*
+     * Rule: Receive UDP messages from UDP server
+     * And establish a TCP connection with it
+     * Input portno: UDP port number
+     * Return (void)
+     */
     int sockfd; /* socket */
  /* port to listen on */
     socklen_t clientlen; /* byte size of client's address */
@@ -189,16 +206,9 @@ void newUDPClient(int portno) {
 
 
 int main(int argc, char **argv) {
-    /* check command line arguments */
-    int portNumber = 0;
-    if (argc != 2) {
-        fprintf(stderr, "usage: %s <port>\n", argv[0]);
-        exit(0);
-    }
 
-    portNumber = atoi(argv[1]);
     //udpClient(portNumber, hostname);
-    newUDPClient(portNumber);
+    UDPClient(UDP_PORT);
 
     return 0;
 }
