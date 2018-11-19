@@ -126,6 +126,8 @@ void udpProtocol(int portNumber) {
      */
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+//    int broadCastEnabl = 1;
+//    setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadCastEnabl, sizeof(broadCastEnabl));
     if (sockfd < 0)
         error("ERROR opening socket");
 
@@ -135,7 +137,7 @@ void udpProtocol(int portNumber) {
      * Eliminates "ERROR on binding: Address already in use" error.
      */
     optval = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
+    setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST,
             (const void *) &optval, sizeof(int));
 
     /*
@@ -146,13 +148,17 @@ void udpProtocol(int portNumber) {
     serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serveraddr.sin_port = htons((unsigned short) portNumber);
 
+    clientaddr.sin_family = AF_INET;
+    clientaddr.sin_port = htons(portNumber);
+    clientaddr.sin_addr.s_addr = inet_addr("10.4.149.230");
+
 
 
     /*
      * bind: associate the parent socket with a port
      */
-    if (bind(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0)
-        error("ERROR on binding");
+//    if (bind(sockfd, (struct sockaddr *) &clientaddr, sizeof(clientaddr)) < 0)
+//        error("ERROR on binding");
 
     /*
      * main loop: wait for a datagram, then echo it
@@ -163,16 +169,17 @@ void udpProtocol(int portNumber) {
         /*
          * recvfrom: receive a UDP datagram from a client
          */
-        bzero(buf, BUFSIZE);
-        n = recvfrom(sockfd, buf, BUFSIZE, 0,
-                (struct sockaddr *) &clientaddr, &clientlen);
-        if (n < 0)
-            error("ERROR in recvfrom");
+//        bzero(buf, BUFSIZE);
+//        n = recvfrom(sockfd, buf, BUFSIZE, 0,
+//                (struct sockaddr *) &clientaddr, &clientlen);
+//        if (n < 0)
+//            error("ERROR in recvfrom");
 
         //tcpHolderMessage = "CS571:"+(string) inet_ntoa(serveraddr.sin_addr)+":"+to_string(TCP_PORT);
+        tcpHolderMessage ="";
         tcpHolderMessage = "CS571:"+getServerIp()+":"+to_string(TCP_PORT);
 
-        n = sendto(sockfd, tcpHolderMessage.c_str(), BUFSIZE, 0,
+        n = sendto(sockfd, tcpHolderMessage.c_str(), tcpHolderMessage.length(), 0,
                 (struct sockaddr *) &clientaddr, clientlen);
         if (n < 0)
             error("ERROR in sendto");

@@ -133,12 +133,12 @@ void newUDPClient(int portNumber, char* serverIP) {
 
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(portNumber);
-    serverAddr.sin_addr.s_addr = inet_addr(serverIP);
+    serverAddr.sin_addr.s_addr = inet_addr("255.255.255.255");//inet_addr(serverIP);
             //inet_addr("0.0.0.0");//inet_addr("192.168.0.2");//htonl(INADDR_ANY);
 
     bzero(buffer, sizeof(buffer));
     strcpy(buffer, "Hello Store\n");
-    sendto(sockfd, buffer, BUFSIZE, 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
+    //sendto(sockfd, buffer, BUFSIZE, 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
     //printf("[+]Data Send: %s", buffer);
     ssize_t n = recvfrom(sockfd, buffer, BUFSIZE, 0, (struct sockaddr *) &serverAddr, &serverlen);
 
